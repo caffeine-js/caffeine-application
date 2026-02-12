@@ -3,10 +3,13 @@ import { detectEntry } from "@/utils";
 import type { ICanReadId, ICanReadSlug } from "@caffeine/domain";
 import type { IEntity } from "@caffeine/entity/types";
 import { ResourceNotFoundException } from "@caffeine/errors/application";
+import type { t } from "@caffeine/models";
 
 export class FindEntityByTypeUseCase<
-	EntityType extends IEntity,
-	RepositoryType extends ICanReadId<EntityType> & ICanReadSlug<EntityType>,
+	SchemaType extends t.TSchema,
+	EntityType extends IEntity<SchemaType>,
+	RepositoryType extends ICanReadId<SchemaType, EntityType> &
+		ICanReadSlug<SchemaType, EntityType>,
 > {
 	public constructor(private readonly repository: RepositoryType) {}
 

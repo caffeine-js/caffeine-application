@@ -46,8 +46,10 @@
   "dependencies": {
     "@caffeine/constants": "link:@caffeine/constants",
     "@caffeine/models": "link:@caffeine/models",
+    "@caffeine/schema": "link:@caffeine/schema",
     "@caffeine/errors": "link:@caffeine/errors",
     "@caffeine/entity": "link:@caffeine/entity",
+    "@caffeine/value-objects": "link:@caffeine/value-objects",
     "@caffeine/domain": "link:@caffeine/domain"
   },
   "scripts": {

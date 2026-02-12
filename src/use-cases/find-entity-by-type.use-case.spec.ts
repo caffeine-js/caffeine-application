@@ -4,16 +4,45 @@ import type { IEntity } from "@caffeine/entity/types";
 import { ResourceNotFoundException } from "@caffeine/errors/application";
 import { describe, expect, it } from "vitest";
 import { FindEntityByTypeUseCase } from "./find-entity-by-type.use-case";
-import { makeEntityFactory } from "@caffeine/entity/factories";
+import { makeEntity } from "@caffeine/entity/factories";
+import { t } from "@caffeine/models";
+import { EntityDTO } from "@caffeine/entity/dtos";
+import {
+	EntityContext,
+	EntitySchema,
+	EntitySource,
+} from "@caffeine/entity/symbols";
+import type { IValueObjectMetadata } from "@caffeine/value-objects/types";
+import { Schema } from "@caffeine/schema";
 
-interface TestEntity extends IEntity {
-	id: string;
+const TestEntityDTO = t.Intersect([
+	EntityDTO,
+	t.Object({
+		slug: t.String({ description: "O slug da entidade de teste" }),
+		name: t.String({ description: "O nome da entidade de teste" }),
+	}),
+]);
+
+type TestEntityDTO = typeof TestEntityDTO;
+
+const properties = {
+	[EntityContext]: (name: string): IValueObjectMetadata => ({
+		name,
+		source: "",
+	}),
+	[EntitySchema]: Schema.make(TestEntityDTO),
+	[EntitySource]: "test@test",
+};
+
+interface TestEntity extends IEntity<typeof TestEntityDTO> {
 	slug: string;
 	name: string;
 }
 
 class InMemoryTestRepository
-	implements ICanReadId<TestEntity>, ICanReadSlug<TestEntity>
+	implements
+		ICanReadId<TestEntityDTO, TestEntity>,
+		ICanReadSlug<TestEntityDTO, TestEntity>
 {
 	public items: TestEntity[] = [];
 
@@ -32,9 +61,10 @@ describe("FindEntityByTypeUseCase", () => {
 		const useCase = new FindEntityByTypeUseCase(repository);
 
 		const entity: TestEntity = {
-			...makeEntityFactory(),
+			...makeEntity(),
 			slug: "test-entity",
 			name: "Test Entity",
+			...properties,
 		};
 
 		repository.items.push(entity);
@@ -50,9 +80,10 @@ describe("FindEntityByTypeUseCase", () => {
 
 		const slug = "unique-slug-example";
 		const entity: TestEntity = {
-			...makeEntityFactory(),
+			...makeEntity(),
 			slug,
 			name: "Test Entity with Slug",
+			...properties,
 		};
 
 		repository.items.push(entity);
@@ -79,7 +110,6 @@ describe("FindEntityByTypeUseCase", () => {
 		const useCase = new FindEntityByTypeUseCase(repository);
 
 		const slug = "non-existent-slug";
-		// Repository is empty
 
 		await expect(useCase.run(slug, "Test Source")).rejects.toThrow(
 			ResourceNotFoundException,
