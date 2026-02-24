@@ -1,6 +1,9 @@
 import type { EntryActions } from "@/types";
 import { detectEntry } from "@/utils";
-import type { ICanReadId, ICanReadSlug } from "@caffeine/domain";
+import type {
+	ICanReadId,
+	ICanReadSlug,
+} from "@caffeine/domain/types/repositories";
 import type { IEntity } from "@caffeine/entity/types";
 import { ResourceNotFoundException } from "@caffeine/errors/application";
 import type { t } from "@caffeine/models";
